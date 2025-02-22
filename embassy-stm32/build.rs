@@ -1623,9 +1623,10 @@ fn main() {
 
     for (ch_idx, ch) in METADATA.dma_channels.iter().enumerate() {
         // Some H7 chips have BDMA1 hardcoded for DFSDM, ie no DMAMUX. It's unsupported, skip it.
-        if has_dmamux && ch.dmamux.is_none() {
-            continue;
-        }
+        // if has_dmamux && ch.dmamux.is_none() {
+        //     continue;
+        // }
+        // 20250222 EE: commented lines to test if it fixes I2S6 BDMA 2
 
         let name = format_ident!("{}", ch.name);
         let idx = ch_idx as u8;
