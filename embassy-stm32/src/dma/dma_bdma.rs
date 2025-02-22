@@ -278,7 +278,14 @@ impl AnyChannel {
     /// Safety: Must be called with a matching set of parameters for a valid dma channel
     pub(crate) unsafe fn on_irq(&self) {
         let info = self.info();
-        let state = &STATE[self.id as usize];
+
+        let state = 
+            if usize::from(self.id) >= STATE.len() {
+                &STATE[(self.id - 8) as usize]
+            } else {
+                &STATE[self.id as usize]
+            };
+
         match self.info().dma {
             #[cfg(dma)]
             DmaInfo::Dma(r) => {
@@ -408,7 +415,7 @@ impl AnyChannel {
                 critical_section::with(|_| r.cselr().modify(|w| w.set_cs(info.num, _request)));
                 
                 let state: &ChannelState = 
-                    if usize::from(self.id) >= crate::_generated::DMA_CHANNELS.len() {
+                    if usize::from(self.id) >= STATE.len() {
                         &STATE[(self.id - 8) as usize]
                     } else {
                         &STATE[self.id as usize]
@@ -527,7 +534,12 @@ impl AnyChannel {
             DmaInfo::Dma(r) => r.st(info.num).cr().read().en(),
             #[cfg(bdma)]
             DmaInfo::Bdma(r) => {
-                let state: &ChannelState = &STATE[self.id as usize];
+                let state: &ChannelState = 
+                    if usize::from(self.id) >= STATE.len{
+                        &STATE[(self.id - 8) as usize]
+                    } else {
+                        &STATE[self.id as usize]
+                    };
                 let ch = r.ch(info.num);
                 let en = ch.cr().read().en();
                 let circular = ch.cr().read().circ();
@@ -794,7 +806,11 @@ impl<'a> DmaCtrl for DmaCtrlImpl<'a> {
     }
 
     fn set_waker(&mut self, waker: &Waker) {
-        STATE[self.0.id as usize].waker.register(waker);
+        if usize::from(self.0.id) >= STATE.len() {
+            STATE[(self.0.id - 8) as usize].waker.register(waker);
+        } else {
+            STATE[self.0.id as usize].waker.register(waker);
+        }
     }
 }
 
