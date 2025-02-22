@@ -94,6 +94,11 @@ impl_peripheral!(AnyChannel);
 
 impl AnyChannel {
     fn info(&self) -> &ChannelInfo {
+
+        if self.id >= 24 {
+            self.id = self.id - 8;
+        }
+
         &crate::_generated::DMA_CHANNELS[self.id as usize]
     }
 }
