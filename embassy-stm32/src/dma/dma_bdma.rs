@@ -773,7 +773,7 @@ impl<'a> Future for Transfer<'a> {
     type Output = ();
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let state: &ChannelState = 
-            if usize::from(self.channel.id) >= STATE {
+            if usize::from(self.channel.id) >= STATE.len() {
                 &STATE[(self.channel.id - 8) as usize]
             } else {
                 &STATE[self.channel.id as usize]
