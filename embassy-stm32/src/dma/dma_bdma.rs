@@ -535,7 +535,7 @@ impl AnyChannel {
             #[cfg(bdma)]
             DmaInfo::Bdma(r) => {
                 let state: &ChannelState = 
-                    if usize::from(self.id) >= STATE.len{
+                    if usize::from(self.id) >= STATE.len() {
                         &STATE[(self.id - 8) as usize]
                     } else {
                         &STATE[self.id as usize]
