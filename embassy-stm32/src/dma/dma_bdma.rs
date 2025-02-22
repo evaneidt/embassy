@@ -772,7 +772,12 @@ impl<'a> Unpin for Transfer<'a> {}
 impl<'a> Future for Transfer<'a> {
     type Output = ();
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let state: &ChannelState = &STATE[self.channel.id as usize];
+        let state: &ChannelState = 
+            if usize::from(self.channel.id) >= STATE {
+                &STATE[(self.channel.id - 8) as usize]
+            } else {
+                &STATE[self.channel.id as usize]
+            };
 
         state.waker.register(cx.waker());
 
@@ -794,7 +799,12 @@ impl<'a> DmaCtrl for DmaCtrlImpl<'a> {
     }
 
     fn reset_complete_count(&mut self) -> usize {
-        let state = &STATE[self.0.id as usize];
+        let state = 
+            if usize::from(self.0.id) >= STATE.len() {
+                &STATE[(self.0.id - 8) as usize]
+            } else {
+                &STATE[self.0.id as usize]
+            };
         #[cfg(not(armv6m))]
         return state.complete_count.swap(0, Ordering::AcqRel);
         #[cfg(armv6m)]
