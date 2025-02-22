@@ -406,8 +406,12 @@ impl AnyChannel {
             DmaInfo::Bdma(r) => {
                 #[cfg(bdma_v2)]
                 critical_section::with(|_| r.cselr().modify(|w| w.set_cs(info.num, _request)));
-
-                let state: &ChannelState = &STATE[self.id as usize];
+                
+                if usize::from(self.id) >= CHANNEL_COUNT {
+                    let state: &ChannelState = &STATE[(self.id - 8) as usize];
+                } else {
+                    let state: &ChannelState = &STATE[self.id as usize];
+                }
                 let ch = r.ch(info.num);
 
                 state.complete_count.store(0, Ordering::Release);
