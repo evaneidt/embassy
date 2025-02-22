@@ -408,10 +408,10 @@ impl AnyChannel {
                 critical_section::with(|_| r.cselr().modify(|w| w.set_cs(info.num, _request)));
                 
                 let state: &ChannelState = 
-                    if usize::from(self.id) >= CHANNEL_COUNT {
-                        &STATE[(self.id - 8) as usize];
+                    if usize::from(self.id) >= crate::_generated::DMA_CHANNELS.len() {
+                        &STATE[(self.id - 8) as usize]
                     } else {
-                        &STATE[self.id as usize];
+                        &STATE[self.id as usize]
                     };
                 let ch = r.ch(info.num);
 
